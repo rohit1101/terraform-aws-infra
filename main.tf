@@ -189,11 +189,6 @@ resource "aws_subnet" "reserved_C" {
 
 }
 
-resource "aws_key_pair" "docker-keypair" {
-  # key_name   = "jenkins-master"
-  public_key = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCnfRWPfhktUcO9kj07c97Nida3KuMkXxoTQatKkpjPJ6f3BeBavp4+LOa7pzFlhi5zTlBHFXoTGKRE45TVxANNKY898aMl4C9lviw4UkSae93djYw14KLDx8O/RFFv7Q9kqIu9Jvi9rECaQIum57/asnziMhAYQgdHCXvaF6nYGTz0En3i9SO2Yb8sivkS2tjXmGnKu9YNTJA1CuEX04W3cga10d0+yXxJF2YXiTheIzXQmASKgGke4Hut+KmGpPQP2KUNyiymBJlcAH+cBJDQwX1pwCDoht14hN4g6dlvXwVm+a9MYwADiZ+IBUkExYAxTbNGAVf9Ce++BZv8E7/z jenkins-master\n"
-}
-
 resource "aws_security_group" "web_server_sg" {
   name        = "web-server-sg"
   description = "Allow HTTP to web server"
@@ -237,6 +232,7 @@ resource "aws_instance" "docker_vm" {
   associate_public_ip_address = true
   subnet_id                   = aws_subnet.web_A.id
   vpc_security_group_ids      = [aws_security_group.web_server_sg.id]
+  key_name = "jenkins-master"
 
   user_data = <<EOF
   #!/bin/bash
