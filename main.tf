@@ -253,7 +253,7 @@ resource "aws_instance" "docker_vm" {
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
   apt-get update -y
   apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
- EOF
+EOF
 
   tags = {
     Name = "docker_vm"
