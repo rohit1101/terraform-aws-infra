@@ -232,9 +232,9 @@ resource "aws_instance" "docker_vm" {
   associate_public_ip_address = true
   subnet_id                   = aws_subnet.web_A.id
   vpc_security_group_ids      = [aws_security_group.web_server_sg.id]
-  key_name = "jenkins-master"
+  key_name                    = "jenkins-master"
 
-  user_data = <<EOF
+  user_data = <<-EOF
   #!/bin/bash
   
   sudo -i
@@ -253,7 +253,7 @@ resource "aws_instance" "docker_vm" {
   sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
   apt-get update -y
   apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin -y
-  EOF
+ EOF
 
   tags = {
     Name = "docker_vm"
