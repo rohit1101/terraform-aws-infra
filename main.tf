@@ -189,3 +189,73 @@ resource "aws_subnet" "reserved_C" {
 
 }
 
+resource "aws_security_group" "web_server_sg" {
+  name        = "web-server-sg"
+  description = "Allow HTTP to web server"
+  vpc_id      = aws_vpc.a4l_vpc.id
+
+  ingress {
+    description = "HTTP ingress"
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "SSH ingress"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_instance" "docker_vm" {
+  ami                         = "ami-0e001c9271cf7f3b9"
+  instance_type               = "t2.micro"
+  availability_zone           = "us-east-1a"
+  associate_public_ip_address = true
+  subnet_id                   = aws_subnet.web_A.id
+  vpc_security_group_ids      = [aws_security_group.web_server_sg.id]
+  key_name                    = "jenkins-master"
+
+  user_data = <<-EOF
+  #!/bin/bash
+  
+  sudo -i
+  apt update -y
+  apt install nginx -y
+  
+  
+  # install docker
+  apt-get update -y
+  apt-get install ca-certificates curl
+  install -m 0755 -d /etc/apt/keyrings
+  curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+  chmod a+r /etc/apt/keyrings/docker.asc
+  echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+  
+EOF
+
+  tags = {
+    Name = "docker_vm"
+  }
+}
